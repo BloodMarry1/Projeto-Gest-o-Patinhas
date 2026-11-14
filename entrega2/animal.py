@@ -1,139 +1,163 @@
-import tkinter as tk
-from tkinter import ttk, messagebox
+# -*- coding: utf-8 -*-
+import gi
+gi.require_version('Gtk', '3.0')
+from gi.repository import Gtk
 from repositorio_animal import inserir_animal, listar_animais, atualizar_animal, excluir_animal
 
-class AnimalApp:
-    def __init__(self, root):
-        self.root = root
-        self.root.title("Gestão Patinhas — Cadastro de Animais")
-        self.root.geometry("550x500")
-        self.root.config(bg="#f4f4f4")
-        
+class AnimalApp(Gtk.Window):
+    """Classe principal da interface gráfica em GTK 3 para o sistema Gestão Patinhas."""
+    
+    def __init__(self):
+        super().__init__(title="Gestão Patinhas — Cadastro de Animais")
+        self.set_default_size(550, 500)
+        self.set_position(Gtk.WindowPosition.CENTER)
+        self.connect("destroy", Gtk.main_quit)
+
         self.id_selecionado = None
 
-        # Título
-        lbl_titulo = tk.Label(root, text="🐾 Cadastro e Gestão de Animais", font=("Arial", 14, "bold"), bg="#f4f4f4", fg="#333")
-        lbl_titulo.pack(pady=15)
-
-        # Frame do Formulário
-        frame_form = tk.Frame(root, bg="#f4f4f4")
-        frame_form.pack(pady=5)
-
-        tk.Label(frame_form, text="Nome:", bg="#f4f4f4", font=("Arial", 10)).grid(row=0, column=0, sticky="w", padx=5, pady=5)
-        self.ent_nome = tk.Entry(frame_form, width=35, font=("Arial", 10))
-        self.ent_nome.grid(row=0, column=1, padx=5, pady=5)
-
-        tk.Label(frame_form, text="Espécie:", bg="#f4f4f4", font=("Arial", 10)).grid(row=1, column=0, sticky="w", padx=5, pady=5)
-        self.ent_especie = tk.Entry(frame_form, width=35, font=("Arial", 10))
-        self.ent_especie.grid(row=1, column=1, padx=5, pady=5)
-
-        tk.Label(frame_form, text="Raça:", bg="#f4f4f4", font=("Arial", 10)).grid(row=2, column=0, sticky="w", padx=5, pady=5)
-        self.ent_raca = tk.Entry(frame_form, width=35, font=("Arial", 10))
-        self.ent_raca.grid(row=2, column=1, padx=5, pady=5)
-
-        tk.Label(frame_form, text="Porte:", bg="#f4f4f4", font=("Arial", 10)).grid(row=3, column=0, sticky="w", padx=5, pady=5)
-        self.ent_porte = tk.Entry(frame_form, width=35, font=("Arial", 10))
-        self.ent_porte.grid(row=3, column=1, padx=5, pady=5)
-
-        # Botões de Ação
-        frame_botoes = tk.Frame(root, bg="#f4f4f4")
-        frame_botoes.pack(pady=10)
-
-        btn_gravar = tk.Button(frame_botoes, text="Gravar", bg="#4CAF50", fg="white", font=("Arial", 10, "bold"), width=12, command=self.on_gravar)
-        btn_gravar.pack(side=tk.LEFT, padx=5)
-
-        btn_excluir = tk.Button(frame_botoes, text="Excluir", bg="#f44336", fg="white", font=("Arial", 10, "bold"), width=12, command=self.on_excluir)
-        btn_excluir.pack(side=tk.LEFT, padx=5)
-
-        # Tabela (Treeview)
-        self.tree = ttk.Treeview(root, columns=("ID", "Nome", "Espécie", "Raça", "Porte"), show="headings", height=8)
-        self.tree.heading("ID", text="ID")
-        self.tree.heading("Nome", text="Nome")
-        self.tree.heading("Espécie", text="Espécie")
-        self.tree.heading("Raça", text="Raça")
-        self.tree.heading("Porte", text="Porte")
+        vbox_principal = Gtk.Box(orientation=Gtk.Orientation.VERTICAL, spacing=12)
+        vbox_principal.set_margin_start(16)
+        vbox_principal.set_margin_end(16)
+        vbox_principal.set_margin_top(16)
+        vbox_principal.set_margin_bottom(16)
+        self.add(vbox_principal)
         
-        self.tree.column("ID", width=40)
-        self.tree.column("Nome", width=100)
-        self.tree.column("Espécie", width=90)
-        self.tree.column("Raça", width=100)
-        self.tree.column("Porte", width=90)
+        lbl_titulo = Gtk.Label(xalign=0)
+        lbl_titulo.set_markup("<b><big>🐾 Cadastro e Gestão de Animais</big></b>")
+        vbox_principal.pack_start(lbl_titulo, False, False, 0)
+
+        grid = Gtk.Grid()
+        grid.set_row_spacing(8)
+        grid.set_column_spacing(12)
+        vbox_principal.pack_start(grid, False, False, 0)
+
+        # Nome
+        grid.attach(Gtk.Label(label="Nome:", xalign=0), 0, 0, 1, 1)
+        self.ent_nome = Gtk.Entry()
+        self.ent_nome.set_hexpand(True)
+        self.ent_nome.set_placeholder_text("Ex.: Mel")
+        grid.attach(self.ent_nome, 1, 0, 1, 1)
+
+        # Espécie
+        grid.attach(Gtk.Label(label="Espécie:", xalign=0), 0, 1, 1, 1)
+        self.ent_especie = Gtk.Entry()
+        self.ent_especie.set_placeholder_text("Ex.: Cão / Gato")
+        grid.attach(self.ent_especie, 1, 1, 1, 1)
+
+        # Raça
+        grid.attach(Gtk.Label(label="Raça:", xalign=0), 0, 2, 1, 1)
+        self.ent_raca = Gtk.Entry()
+        self.ent_raca.set_placeholder_text("Ex.: SRD")
+        grid.attach(self.ent_raca, 1, 2, 1, 1)
+
+        # Porte
+        grid.attach(Gtk.Label(label="Porte:", xalign=0), 0, 3, 1, 1)
+        self.ent_porte = Gtk.Entry()
+        self.ent_porte.set_placeholder_text("Ex.: Pequeno / Médio")
+        grid.attach(self.ent_porte, 1, 3, 1, 1)
+
+        box_botoes = Gtk.Box(orientation=Gtk.Orientation.HORIZONTAL, spacing=8)
+        box_botoes.set_homogeneous(True)
+        vbox_principal.pack_start(box_botoes, False, False, 0)
+
+        btn_gravar = Gtk.Button(label="Gravar")
+        btn_gravar.connect("clicked", self.on_gravar_clicked)
+        box_botoes.pack_start(btn_gravar, True, True, 0)
+
+        btn_excluir = Gtk.Button(label="Excluir Selecionado")
+        btn_excluir.connect("clicked", self.on_excluir_clicked)
+        box_botoes.pack_start(btn_excluir, True, True, 0)
+
+        self.lbl_mensagem = Gtk.Label(label="Preencha os dados e clique em Gravar.", xalign=0)
+        vbox_principal.pack_start(self.lbl_mensagem, False, False, 0)
+
+        self.list_animais = Gtk.ListStore(int, str, str, str, str)
+        self.tvw_animais = Gtk.TreeView(model=self.list_animais)
         
-        self.tree.pack(fill=tk.BOTH, expand=True, padx=15, pady=10)
-        self.tree.bind("<<TreeviewSelect>>", self.on_select)
+        for i, titulo in enumerate(["ID", "Nome", "Espécie", "Raça", "Porte"]):
+            renderer = Gtk.CellRendererText()
+            column = Gtk.TreeViewColumn(titulo, renderer, text=i)
+            self.tvw_animais.append_column(column)
+            
+        selecao = self.tvw_animais.get_selection()
+        selecao.connect("changed", self.on_tabela_selected)
+
+        scrolled = Gtk.ScrolledWindow()
+        scrolled.set_vexpand(True)
+        scrolled.add(self.tvw_animais)
+        vbox_principal.pack_start(scrolled, True, True, 0)
 
         self.atualizar_tabela()
+        self.show_all()
 
     def atualizar_tabela(self):
-        for row in self.tree.get_children():
-            self.tree.delete(row)
+        """Busca os animais no banco de dados e atualiza a exibição na tabela."""
         try:
+            self.list_animais.clear()
             animais = listar_animais()
             for anim in animais:
-                self.tree.insert("", tk.END, values=(anim[0], anim[1], anim[2], anim[3], anim[4]))
+                self.list_animais.append([anim[0], anim[1], anim[2], anim[3], anim[4]])
         except Exception as e:
-            messagebox.showerror("Erro de Conexão", f"Não foi possível carregar os dados:\n{e}")
+            self.lbl_mensagem.set_text(f"Erro ao carregar dados: {e}")
 
-    def on_select(self, event):
-        selected_item = self.tree.selection()
-        if selected_item:
-            values = self.tree.item(selected_item[0], "values")
-            self.id_selecionado = values[0]
-            self.ent_nome.delete(0, tk.END)
-            self.ent_nome.insert(0, values[1])
-            self.ent_especie.delete(0, tk.END)
-            self.ent_especie.insert(0, values[2])
-            self.ent_raca.delete(0, tk.END)
-            self.ent_raca.insert(0, values[3])
-            self.ent_porte.delete(0, tk.END)
-            self.ent_porte.insert(0, values[4])
+    def on_tabela_selected(self, selection):
+        """Captura o item selecionado na tabela para permitir edição ou exclusão."""
+        model, treeiter = selection.get_selected()
+        if treeiter != None:
+            self.id_selecionado = model[treeiter][0]
+            self.ent_nome.set_text(model[treeiter][1])
+            self.ent_especie.set_text(model[treeiter][2])
+            self.ent_raca.set_text(model[treeiter][3])
+            self.ent_porte.set_text(model[treeiter][4])
 
-    def on_gravar(self):
-        nome = self.ent_nome.get().strip()
-        especie = self.ent_especie.get().strip()
-        raca = self.ent_raca.get().strip()
-        porte = self.ent_porte.get().strip()
+    def on_gravar_clicked(self, button):
+        """Executa a inserção ou atualização de um animal com tratamento de erros."""
+        nome = self.ent_nome.get_text().strip()
+        especie = self.ent_especie.get_text().strip()
+        raca = self.ent_raca.get_text().strip()
+        porte = self.ent_porte.get_text().strip()
 
         if not nome or not especie:
-            messagebox.showwarning("Aviso", "Preencha os campos obrigatórios (Nome e Espécie).")
+            self.lbl_mensagem.set_text("Erro: Preencha os campos obrigatórios (Nome e Espécie).")
             return
 
         try:
             if self.id_selecionado is None:
                 inserir_animal(nome, especie, raca, porte, None, "Não", "Disponível")
-                messagebox.showinfo("Sucesso", "Animal cadastrado com sucesso!")
+                self.lbl_mensagem.set_text("Animal cadastrado com sucesso!")
             else:
                 atualizar_animal(self.id_selecionado, nome, especie, raca, porte, None, "Não", "Disponível")
-                messagebox.showinfo("Sucesso", "Animal atualizado com sucesso!")
+                self.lbl_mensagem.set_text("Animal atualizado com sucesso!")
                 self.id_selecionado = None
-            
-            self.limpar()
+
+            self.limpar_campos()
             self.atualizar_tabela()
         except Exception as e:
-            messagebox.showerror("Erro", f"Erro ao salvar no banco:\n{e}")
+            self.lbl_mensagem.set_text(f"Erro ao salvar: {e}")
 
-    def on_excluir(self):
+    def on_excluir_clicked(self, button):
+        """Exclui o animal selecionado na tabela."""
         if self.id_selecionado is None:
-            messagebox.showwarning("Aviso", "Selecione um animal na tabela para excluir.")
+            self.lbl_mensagem.set_text("Selecione um animal na tabela para excluir.")
             return
-        
-        if messagebox.askyesno("Confirmar", "Tem certeza que deseja excluir este animal?"):
-            try:
-                excluir_animal(self.id_selecionado)
-                messagebox.showinfo("Sucesso", "Animal excluído com sucesso!")
-                self.id_selecionado = None
-                self.limpar()
-                self.atualizar_tabela()
-            except Exception as e:
-                messagebox.showerror("Erro", f"Erro ao excluir:\n{e}")
+        try:
+            excluir_animal(self.id_selecionado)
+            self.lbl_mensagem.set_text("Animal excluído com sucesso!")
+            self.id_selecionado = None
+            self.limpar_campos()
+            self.atualizar_tabela()
+        except Exception as e:
+            self.lbl_mensagem.set_text(f"Erro ao excluir: {e}")
 
-    def limpar(self):
-        self.ent_nome.delete(0, tk.END)
-        self.ent_especie.delete(0, tk.END)
-        self.ent_raca.delete(0, tk.END)
-        self.ent_porte.delete(0, tk.END)
+    def limpar_campos(self):
+        """Limpa as caixas de texto do formulário."""
+        self.ent_nome.set_text("")
+        self.ent_especie.set_text("")
+        self.ent_raca.set_text("")
+        self.ent_porte.set_text("")
 
 if __name__ == "__main__":
-    root = tk.Tk()
-    app = AnimalApp(root)
-    root.mainloop()
+    app = AnimalApp()
+    Gtk.main()
+
+
