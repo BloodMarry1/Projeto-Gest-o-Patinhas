@@ -1,16 +1,18 @@
 import configparser
-import mysql.connector
+import pymysql
 
 def conectar():
-    """Lê o config.ini e retorna a conexão com o banco de dados."""
+    """Lê o config.ini e retorna a conexão segura com o TiDB Cloud via PyMySQL."""
     config = configparser.ConfigParser()
     config.read('config.ini', encoding='utf-8')
     banco = config['banco']
-    
-    return mysql.connector.connect(
+
+    return pymysql.connect(
         host=banco['host'],
         port=int(banco['porta']),
         user=banco['usuario'],
         password=banco['senha'],
-        database=banco['nome']
+        database=banco['nome'],
+        charset='utf8mb4',
+        ssl={'ssl': {'reject_unauthorized': False}}
     )
